@@ -76,6 +76,10 @@ def verify_proxy(f):
         return f(webhook_data=webhook_data, proxy_path=proxy_path, *args, **kwargs)
     return decorated
 
+@app.route('/', methods=['GET'])
+def home():
+    return BRAND_HEADER, 200, {'Content-Type': 'text/plain'}
+
 @app.route('/ping', methods=['GET'])
 def ping():
     return jsonify({'status': 'alive', 'timestamp': datetime.now().isoformat()})
@@ -147,4 +151,4 @@ def get_brand():
     return jsonify({'brand': BRAND_NAME, 'header': BRAND_HEADER, 'protected_by': f"Webhook Protected by: {BRAND_NAME}"})
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=False, threaded=True)
+    app.run(host='0.0.0.0', port=5000)
