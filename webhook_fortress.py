@@ -26,7 +26,7 @@ class WebhookFortress:
 
     def init_db(self):
         cursor = self.db.cursor()
-        cursor.execute('''CREATE TABLE IF NOT EXISTS webhooks (id TEXT PRIMARY KEY, original_url TEXT NOT NULL, proxy_path TEXT UNIQUE NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, expires_at TIMESTAMP, is_active BOOLEAN DEFAULT 1)''')
+        cursor.execute('''CREATE TABLE IF NOT EXISTS webhooks (id TEXT PRIMARY KEY, original_url TEXT NOT NULL, proxy_path TEXT UNIQUE NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, is_active BOOLEAN DEFAULT 1)''')
         cursor.execute('''CREATE TABLE IF NOT EXISTS requests (id INTEGER PRIMARY KEY AUTOINCREMENT, webhook_id TEXT, ip_address TEXT, timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
         self.db.commit()
 
@@ -36,9 +36,8 @@ class WebhookFortress:
     def create_proxy_link(self, original_url):
         webhook_id = secrets.token_hex(16)
         proxy_path = self.generate_proxy_path()
-        expires_at = datetime.now() + timedelta(days=365*100)
         cursor = self.db.cursor()
-        cursor.execute('INSERT INTO webhooks (id, original_url, proxy_path, expires_at) VALUES (?, ?, ?, ?)', (webhook_id, original_url, proxy_path, expires_at))
+        cursor.execute('INSERT INTO webhooks (id, original_url, proxy_path) VALUES (?, ?, ?)', (webhook_id, original_url, proxy_path))
         self.db.commit()
         proxy_link = f"{BASE_URL}/proxy/{proxy_path}"
         with self.lock:
@@ -47,11 +46,11 @@ class WebhookFortress:
 
     def verify_proxy_path(self, proxy_path):
         cursor = self.db.cursor()
-        cursor.execute('SELECT id, original_url, expires_at, is_active FROM webhooks WHERE proxy_path = ?', (proxy_path,))
+        cursor.execute('SELECT id, original_url, is_active FROM webhooks WHERE proxy_path = ?', (proxy_path,))
         result = cursor.fetchone()
         if not result:
             return None, "Invalid proxy path"
-        webhook_id, original_url, expires_at, is_active = result
+        webhook_id, original_url, is_active = result
         if not is_active:
             return None, "Webhook is deactivated"
         return {'webhook_id': webhook_id, 'original_url': original_url}, None
@@ -134,11 +133,11 @@ def deactivate_webhook(webhook_id):
 def list_webhooks():
     try:
         cursor = fortress.db.cursor()
-        cursor.execute('SELECT id, original_url, proxy_path, created_at, expires_at, is_active FROM webhooks ORDER BY created_at DESC LIMIT 50')
+        cursor.execute('SELECT id, original_url, proxy_path, created_at, is_active FROM webhooks ORDER BY created_at DESC LIMIT 50')
         results = cursor.fetchall()
         webhooks = []
         for row in results:
-            webhooks.append({'id': row[0], 'original_url': row[1][:50] + '...' if len(row[1]) > 50 else row[1], 'proxy_path': row[2], 'created_at': row[3], 'expires_at': row[4], 'is_active': bool(row[5])})
+            webhooks.append({'id': row[0], 'original_url': row[1][:50] + '...' if len(row[1]) > 50 else row[1], 'proxy_path': row[2], 'created_at': row[3], 'is_active': bool(row[4])})
         return jsonify({'webhooks': webhooks}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
