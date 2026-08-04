@@ -3,371 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Webhook Protector — Kuni</title>
+    <title>Webhook Protector</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background: #0a0a0f;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background-image: radial-gradient(circle at 20% 50%, #1a1a2e 0%, #0a0a0f 100%);
-        }
-
-        .container {
-            background: rgba(18, 18, 30, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 24px;
-            padding: 50px 40px;
-            max-width: 520px;
-            width: 100%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
-        }
-
-        .brand-banner {
-            background: rgba(124, 106, 255, 0.10);
-            border: 1px solid rgba(124, 106, 255, 0.15);
-            border-radius: 12px;
-            padding: 12px 16px;
-            text-align: center;
-            margin-bottom: 24px;
-            color: #7c6aff;
-            font-weight: 600;
-            font-size: 14px;
-            letter-spacing: 0.5px;
-        }
-
-        .brand-banner span {
-            color: #ffffff;
-        }
-
-        .badge {
-            display: inline-block;
-            background: rgba(88, 70, 255, 0.15);
-            color: #7c6aff;
-            font-size: 11px;
-            font-weight: 700;
-            padding: 6px 14px;
-            border-radius: 50px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            border: 1px solid rgba(88, 70, 255, 0.2);
-            margin-bottom: 16px;
-        }
-
-        h1 {
-            color: #ffffff;
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 6px;
-        }
-
-        h1 span {
-            color: #7c6aff;
-        }
-
-        .subtitle {
-            color: #8888aa;
-            font-size: 14px;
-            line-height: 1.6;
-            margin-bottom: 28px;
-        }
-
-        .input-group {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 14px;
-            padding: 4px;
-            display: flex;
-            align-items: center;
-            transition: border-color 0.3s, box-shadow 0.3s;
-            margin-bottom: 16px;
-        }
-
-        .input-group:focus-within {
-            border-color: #7c6aff;
-            box-shadow: 0 0 0 4px rgba(124, 106, 255, 0.15);
-        }
-
-        .input-group input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            padding: 14px 18px;
-            color: #ffffff;
-            font-size: 14px;
-            outline: none;
-            min-width: 0;
-        }
-
-        .input-group input::placeholder {
-            color: #555577;
-        }
-
-        .input-group .lock-icon {
-            padding: 0 14px 0 18px;
-            color: #555577;
-            font-size: 16px;
-        }
-
-        .btn-generate {
-            width: 100%;
-            background: linear-gradient(135deg, #7c6aff, #5a4adf);
-            border: none;
-            border-radius: 14px;
-            padding: 16px;
-            color: #ffffff;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 4px;
-        }
-
-        .btn-generate:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(124, 106, 255, 0.35);
-        }
-
-        .btn-generate:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .steps {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 32px;
-            padding-top: 28px;
-            border-top: 1px solid rgba(255, 255, 255, 0.06);
-        }
-
-        .step {
-            text-align: center;
-            flex: 1;
-        }
-
-        .step .num {
-            background: rgba(124, 106, 255, 0.12);
-            color: #7c6aff;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 8px;
-            font-size: 13px;
-            font-weight: 700;
-            border: 1px solid rgba(124, 106, 255, 0.15);
-        }
-
-        .step .label {
-            color: #7777aa;
-            font-size: 12px;
-            font-weight: 500;
-            line-height: 1.4;
-        }
-
-        .result-box {
-            background: rgba(124, 106, 255, 0.06);
-            border: 1px solid rgba(124, 106, 255, 0.15);
-            border-radius: 14px;
-            padding: 16px 18px;
-            margin-top: 20px;
-            display: none;
-            word-break: break-all;
-        }
-
-        .result-box.show {
-            display: block;
-            animation: fadeSlide 0.4s ease;
-        }
-
-        .result-box .label {
-            color: #8888bb;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-weight: 600;
-        }
-
-        .result-box .link {
-            color: #7c6aff;
-            font-size: 14px;
-            margin-top: 6px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-        }
-
-        .result-box .link span {
-            flex: 1;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .copy-btn {
-            background: rgba(255, 255, 255, 0.06);
-            border: none;
-            color: #aaaadd;
-            padding: 6px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 600;
-            transition: all 0.2s;
-            flex-shrink: 0;
-        }
-
-        .copy-btn:hover {
-            background: rgba(124, 106, 255, 0.2);
-            color: #ffffff;
-        }
-
-        .brand-footer {
-            color: #444466;
-            font-size: 12px;
-            text-align: center;
-            margin-top: 24px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.04);
-        }
-
-        .brand-footer span {
-            color: #7c6aff;
-            font-weight: 600;
-        }
-
-        .brand-tag {
-            display: inline-block;
-            background: rgba(124, 106, 255, 0.08);
-            padding: 2px 12px;
-            border-radius: 50px;
-            color: #7c6aff;
-            font-size: 11px;
-            font-weight: 600;
-            border: 1px solid rgba(124, 106, 255, 0.1);
-            margin-top: 8px;
-        }
-
-        @keyframes fadeSlide {
-            0% { opacity: 0; transform: translateY(10px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
-
-        .loading-spinner {
-            display: inline-block;
-            width: 18px;
-            height: 18px;
-            border: 2px solid rgba(255,255,255,0.2);
-            border-top-color: #fff;
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-            vertical-align: middle;
-            margin-right: 10px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .error-msg {
-            color: #ff6b6b;
-            font-size: 13px;
-            margin-top: 10px;
-            display: none;
-            background: rgba(255, 50, 50, 0.08);
-            padding: 10px 14px;
-            border-radius: 10px;
-            border: 1px solid rgba(255, 50, 50, 0.15);
-        }
-
-        .error-msg.show {
-            display: block;
-        }
-
-        .brand-watermark {
-            color: #333355;
-            font-size: 10px;
-            text-align: center;
-            margin-top: 16px;
-            letter-spacing: 0.3px;
-        }
-
-        .brand-watermark span {
-            color: #7c6aff;
-        }
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+        body{background:#0a0a0f;display:flex;justify-content:center;align-items:center;min-height:100vh;background-image:radial-gradient(circle at 20% 50%,#1a1a2e 0%,#0a0a0f 100%)}
+        .container{background:rgba(18,18,30,0.95);border:1px solid rgba(255,255,255,0.08);border-radius:24px;padding:50px 40px;max-width:520px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.8)}
+        .brand-banner{background:rgba(124,106,255,0.10);border:1px solid rgba(124,106,255,0.15);border-radius:12px;padding:12px 16px;text-align:center;margin-bottom:24px;color:#7c6aff;font-weight:600;font-size:14px;letter-spacing:0.5px}
+        .brand-banner span{color:#ffffff}
+        .badge{display:inline-block;background:rgba(88,70,255,0.15);color:#7c6aff;font-size:11px;font-weight:700;padding:6px 14px;border-radius:50px;letter-spacing:1px;text-transform:uppercase;border:1px solid rgba(88,70,255,0.2);margin-bottom:16px}
+        h1{color:#ffffff;font-size:28px;font-weight:700;margin-bottom:6px}
+        h1 span{color:#7c6aff}
+        .subtitle{color:#8888aa;font-size:14px;line-height:1.6;margin-bottom:28px}
+        .input-group{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:4px;display:flex;align-items:center;transition:border-color 0.3s,box-shadow 0.3s;margin-bottom:16px}
+        .input-group:focus-within{border-color:#7c6aff;box-shadow:0 0 0 4px rgba(124,106,255,0.15)}
+        .input-group input{flex:1;background:transparent;border:none;padding:14px 18px;color:#ffffff;font-size:14px;outline:none;min-width:0}
+        .input-group input::placeholder{color:#555577}
+        .input-group .lock-icon{padding:0 14px 0 18px;color:#555577;font-size:16px}
+        .btn-generate{width:100%;background:linear-gradient(135deg,#7c6aff,#5a4adf);border:none;border-radius:14px;padding:16px;color:#ffffff;font-size:16px;font-weight:600;cursor:pointer;transition:all 0.3s ease;margin-top:4px}
+        .btn-generate:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(124,106,255,0.35)}
+        .btn-generate:disabled{opacity:0.6;cursor:not-allowed;transform:none}
+        .steps{display:flex;justify-content:space-between;margin-top:32px;padding-top:28px;border-top:1px solid rgba(255,255,255,0.06)}
+        .step{text-align:center;flex:1}
+        .step .num{background:rgba(124,106,255,0.12);color:#7c6aff;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:13px;font-weight:700;border:1px solid rgba(124,106,255,0.15)}
+        .step .label{color:#7777aa;font-size:12px;font-weight:500;line-height:1.4}
+        .result-box{background:rgba(124,106,255,0.06);border:1px solid rgba(124,106,255,0.15);border-radius:14px;padding:16px 18px;margin-top:20px;display:none;word-break:break-all}
+        .result-box.show{display:block;animation:fadeSlide 0.4s ease}
+        .result-box .label{color:#8888bb;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600}
+        .result-box .link{color:#7c6aff;font-size:14px;margin-top:6px;font-weight:500;display:flex;align-items:center;justify-content:space-between;gap:12px}
+        .result-box .link span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .copy-btn{background:rgba(255,255,255,0.06);border:none;color:#aaaadd;padding:6px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;transition:all 0.2s;flex-shrink:0}
+        .copy-btn:hover{background:rgba(124,106,255,0.2);color:#ffffff}
+        .brand-footer{color:#444466;font-size:12px;text-align:center;margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.04)}
+        .brand-footer span{color:#7c6aff;font-weight:600}
+        .brand-tag{display:inline-block;background:rgba(124,106,255,0.08);padding:2px 12px;border-radius:50px;color:#7c6aff;font-size:11px;font-weight:600;border:1px solid rgba(124,106,255,0.1);margin-top:8px}
+        @keyframes fadeSlide{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:translateY(0)}}
+        .loading-spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,0.2);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:10px}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        .error-msg{color:#ff6b6b;font-size:13px;margin-top:10px;display:none;background:rgba(255,50,50,0.08);padding:10px 14px;border-radius:10px;border:1px solid rgba(255,50,50,0.15)}
+        .error-msg.show{display:block}
+        .brand-watermark{color:#333355;font-size:10px;text-align:center;margin-top:16px;letter-spacing:0.3px}
+        .brand-watermark span{color:#7c6aff}
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="brand-banner">
-            🔒 <span>Webhook Protected by: Kuni</span>
-        </div>
-
+        <div class="brand-banner">🔒 <span>Webhook Protected by: Kuni</span></div>
         <div class="badge">🔐 Kuni Security</div>
         <h1>Protect Your <span>Discord Webhook</span></h1>
         <p class="subtitle">Hide your real webhook URL behind a secure proxy link — so nobody can delete or abuse it.</p>
-
         <div class="input-group">
             <span class="lock-icon">🔗</span>
             <input type="text" id="webhookUrl" placeholder="https://discord.com/api/webhooks/..." spellcheck="false">
         </div>
-
         <button class="btn-generate" id="generateBtn">Generate Secure Link</button>
-
         <div class="error-msg" id="errorMsg">⚠️ Please enter a valid Discord webhook URL.</div>
-
         <div class="result-box" id="resultBox">
             <div class="label">🔐 Your Protected Proxy Link</div>
             <div class="link">
                 <span id="proxyLink">https://your-proxy.com/...</span>
                 <button class="copy-btn" id="copyBtn">Copy</button>
             </div>
-            <div style="margin-top: 8px; font-size: 12px; color: #666699;">
-                Webhook ID: <span id="webhookId" style="color: #7c6aff; font-weight: 600;">---</span>
-            </div>
+            <div style="margin-top:8px;font-size:12px;color:#666699;">Webhook ID: <span id="webhookId" style="color:#7c6aff;font-weight:600;">---</span></div>
             <div class="brand-tag">🛡️ Protected by Kuni</div>
         </div>
-
         <div class="steps">
-            <div class="step">
-                <div class="num">1</div>
-                <div class="label">Paste your<br>webhook URL</div>
-            </div>
-            <div class="step">
-                <div class="num">2</div>
-                <div class="label">Get a hidden<br>proxy link</div>
-            </div>
-            <div class="step">
-                <div class="num">3</div>
-                <div class="label">Share the proxy<br>— stay safe</div>
-            </div>
+            <div class="step"><div class="num">1</div><div class="label">Paste your<br>webhook URL</div></div>
+            <div class="step"><div class="num">2</div><div class="label">Get a hidden<br>proxy link</div></div>
+            <div class="step"><div class="num">3</div><div class="label">Share the proxy<br>— stay safe</div></div>
         </div>
-
-        <div class="brand-footer">
-            Your real webhook URL is <span>never exposed</span> to the public.
-        </div>
-        <div class="brand-watermark">
-            ⚡ <span>Webhook Protected by: Kuni</span>
-        </div>
+        <div class="brand-footer">Your real webhook URL is <span>never exposed</span> to the public.</div>
+        <div class="brand-watermark">⚡ <span>Webhook Protected by: Kuni</span></div>
     </div>
-
     <script>
-        const API_BASE = 'http://localhost:5000';
-
+        const API_BASE = window.location.origin;
         async function loadBrand() {
             try {
                 const response = await fetch(`${API_BASE}/brand`);
@@ -375,12 +83,9 @@
                 if (data.protected_by) {
                     document.querySelector('.brand-banner span').textContent = data.protected_by;
                 }
-            } catch (e) {
-                console.log('Brand info not available');
-            }
+            } catch (e) {}
         }
         loadBrand();
-
         document.getElementById('generateBtn').addEventListener('click', async function() {
             const urlInput = document.getElementById('webhookUrl');
             const url = urlInput.value.trim();
@@ -388,31 +93,22 @@
             const resultBox = document.getElementById('resultBox');
             const proxyLink = document.getElementById('proxyLink');
             const webhookId = document.getElementById('webhookId');
-
             if (!url || !url.startsWith('https://discord.com/api/webhooks/')) {
                 errorMsg.textContent = '⚠️ Please enter a valid Discord webhook URL.';
                 errorMsg.classList.add('show');
                 resultBox.classList.remove('show');
                 return;
             }
-
             errorMsg.classList.remove('show');
-
             this.disabled = true;
             this.innerHTML = '<span class="loading-spinner"></span> Generating...';
-
             try {
                 const response = await fetch(`${API_BASE}/create`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        url: url,
-                        expires_in: 72
-                    })
+                    body: JSON.stringify({ url: url, expires_in: 72 })
                 });
-
                 const data = await response.json();
-
                 if (response.ok) {
                     proxyLink.textContent = data.proxy_link;
                     webhookId.textContent = data.webhook_id;
@@ -423,15 +119,13 @@
                     resultBox.classList.remove('show');
                 }
             } catch (error) {
-                errorMsg.textContent = '❌ Cannot connect to server. Make sure webhook_fortress.py is running.';
+                errorMsg.textContent = '❌ Cannot connect to server.';
                 errorMsg.classList.add('show');
                 resultBox.classList.remove('show');
             }
-
             this.disabled = false;
             this.innerHTML = 'Generate Secure Link';
         });
-
         document.getElementById('copyBtn').addEventListener('click', function() {
             const link = document.getElementById('proxyLink').textContent;
             if (link && link !== 'https://your-proxy.com/...') {
@@ -439,9 +133,7 @@
                     const original = this.textContent;
                     this.textContent = '✅ Copied!';
                     setTimeout(() => { this.textContent = original; }, 2000);
-                }).catch(() => {
-                    alert('Copy manually: ' + link);
-                });
+                }).catch(() => { alert('Copy manually: ' + link); });
             }
         });
     </script>
