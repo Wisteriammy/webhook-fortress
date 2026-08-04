@@ -33,17 +33,17 @@ class WebhookFortress:
     def generate_proxy_path(self):
         return secrets.token_urlsafe(16)
 
-    def create_proxy_link(self, original_url, expires_in_hours=72):
+    def create_proxy_link(self, original_url):
         webhook_id = secrets.token_hex(16)
         proxy_path = self.generate_proxy_path()
-        expires_at = datetime.now() + timedelta(hours=expires_in_hours) if expires_in_hours else None
+        expires_at = datetime.now() + timedelta(days=365*100)
         cursor = self.db.cursor()
         cursor.execute('INSERT INTO webhooks (id, original_url, proxy_path, expires_at) VALUES (?, ?, ?, ?)', (webhook_id, original_url, proxy_path, expires_at))
         self.db.commit()
         proxy_link = f"{BASE_URL}/proxy/{proxy_path}"
         with self.lock:
             self.proxy_links[proxy_path] = {'webhook_id': webhook_id, 'original_url': original_url}
-        return {'proxy_link': proxy_link, 'webhook_id': webhook_id, 'expires_at': expires_at.isoformat() if expires_at else None}
+        return {'proxy_link': proxy_link, 'webhook_id': webhook_id}
 
     def verify_proxy_path(self, proxy_path):
         cursor = self.db.cursor()
@@ -54,8 +54,6 @@ class WebhookFortress:
         webhook_id, original_url, expires_at, is_active = result
         if not is_active:
             return None, "Webhook is deactivated"
-        if expires_at and datetime.now() > datetime.fromisoformat(expires_at):
-            return None, "Webhook has expired"
         return {'webhook_id': webhook_id, 'original_url': original_url}, None
 
     def log_request(self, webhook_id, ip):
@@ -95,8 +93,7 @@ def create_proxy():
             return jsonify({'error': 'Webhook URL is required'}), 400
         if not re.match(r'^https://discord\.com/api/webhooks/[\w-]+/[\w-]+$', original_url):
             return jsonify({'error': 'Invalid Discord webhook URL format'}), 400
-        expires_in = data.get('expires_in', 72)
-        result = fortress.create_proxy_link(original_url, expires_in)
+        result = fortress.create_proxy_link(original_url)
         return jsonify(result), 201
     except Exception as e:
         return jsonify({'error': str(e)}), 500
